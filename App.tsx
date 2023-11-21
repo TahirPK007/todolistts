@@ -4,6 +4,8 @@ import TodoList from './src/components/TodoList';
 import {Provider} from 'react-redux';
 import {store} from './src/redux toolkit/store';
 import {createTable} from './src/services/DBHandler';
+import {NavigationContainer} from '@react-navigation/native';
+import AppNavigator from './src/AppNavigator';
 
 const App = () => {
   // useEffect(() => {
@@ -11,9 +13,11 @@ const App = () => {
   // }, []);
 
   return (
-    <Provider store={store}>
-      <TodoList />
-    </Provider>
+    <NavigationContainer>
+      <Provider store={store}>
+        <AppNavigator />
+      </Provider>
+    </NavigationContainer>
   );
 };
 

@@ -8,6 +8,7 @@ import {
   Animated,
   StyleSheet,
   Alert,
+  Modal,
 } from 'react-native';
 import TodoItem from './TodoItem';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -17,25 +18,31 @@ import {
   selectTodos,
   setTodos,
 } from '../redux toolkit/slices/todoSlice';
-import {addTask, createDbTable, deleteDbTable, deleteTodoFromDb, getAllTasks} from '../services/DBHandler';
-
+import {
+  addTask,
+  createDbTable,
+  deleteDbTable,
+  deleteTodoFromDb,
+  getAllTasks,
+} from '../services/DBHandler';
 
 const TodoList = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<string>('');
   const [taskList, setTaskList] = useState<[]>([]);
   const todos: [] = useSelector(selectTodos);
+  const [modalVisible, setmodalVisible] = useState(false);
 
-//   const createTable = () => {
-//     createDbTable().then(res=>{})
-//   };
+  //   const createTable = () => {
+  //     createDbTable().then(res=>{})
+  //   };
   const saveTodo = () => {
     addTask(data)
       .then(() => {
         // dispatch(addTask(data));
         setData('');
       })
-      .catch(() => {});;
+      .catch(() => {});
   };
 
   const fetchTodosFromDB = () => {
@@ -47,16 +54,14 @@ const TodoList = () => {
   };
 
   const deleteTable = () => {
-    deleteDbTable().then(res=>{
-
-    })
+    deleteDbTable().then(res => {});
   };
 
-  const deleteTodoHandler = (id:number) => {
-   deleteTodoFromDb(id).then(res=>{
-    console.log(res,'this is delted')
-    fetchTodosFromDB()
-   })
+  const deleteTodoHandler = (id: number) => {
+    deleteTodoFromDb(id).then(res => {
+      console.log(res, 'this is delted');
+      fetchTodosFromDB();
+    });
   };
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -74,13 +79,61 @@ const TodoList = () => {
     // createDbTable();
     // fetchTodosFromDB();
     getAllTasks().then((res: any) => {
-        setTaskList(res);
-    })
+      setTaskList(res);
+    });
     // deleteTable();
   }, [taskList]);
 
   return (
     <View style={{flex: 1}}>
+      <Modal visible={modalVisible} transparent={true}>
+        <View
+          style={{
+            width: '90%',
+            backgroundColor: 'white',
+            height: '70%',
+            marginTop: 100,
+            marginLeft: 20,
+            borderRadius: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <TextInput
+            style={{
+              width: '70%',
+              height: 50,
+              borderWidth: 1,
+              borderColor: 'black',
+              borderRadius: 10,
+              paddingLeft: 10,
+            }}
+            placeholder="Enter your todo"
+            value={data}
+            onChangeText={txt => setData(txt)}
+          />
+          <TouchableOpacity
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '50%',
+              height: 50,
+              borderWidth: 1,
+              borderColor: 'green',
+              borderRadius: 15,
+              marginTop: 20,
+            }}
+            onPress={() => {
+              if (data === '') {
+                Alert.alert('Please enter something');
+              } else {
+                saveTodo();
+                setmodalVisible(false);
+              }
+            }}>
+            <Text style={{color: 'black', fontSize: 20}}>Save Todo</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <Text
         style={{
           textAlign: 'center',
@@ -107,60 +160,25 @@ const TodoList = () => {
           )}
         />
       </View>
-      <View
+
+      <TouchableOpacity
         style={{
-          width: '90%',
-          borderWidth: 1,
-          borderColor: 'black',
-          height: 100,
-          marginBottom: 10,
-          paddingLeft: 10,
-          paddingRight: 10,
           justifyContent: 'center',
           alignItems: 'center',
-          marginLeft: 20,
-          borderRadius: 15,
+          borderWidth: 1,
+          borderColor: 'green',
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          position: 'absolute',
+          bottom: 30,
+          right: 30,
+        }}
+        onPress={() => {
+          setmodalVisible(true);
         }}>
-        <View
-          style={{
-            width: '100%',
-            height: 100,
-            position: 'absolute',
-            bottom: 0,
-            left: 10,
-            right: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <TextInput
-            style={{
-              flex: 1,
-              height: 50,
-              borderWidth: 1,
-              borderColor: 'black',
-              borderRadius: 10,
-              paddingLeft: 10,
-            }}
-            placeholder="Enter your todo"
-            value={data}
-            onChangeText={txt => setData(txt)}
-          />
-          <TouchableOpacity
-            style={{
-              marginLeft: 5,
-            }}
-            onPress={() => {
-              if (data === '') {
-                Alert.alert('Please enter something');
-              } else {
-                saveTodo();
-              }
-            }}>
-            <Icon name="plus" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
+        <Icon name="plus" size={30} color="black" />
+      </TouchableOpacity>
     </View>
   );
 };
