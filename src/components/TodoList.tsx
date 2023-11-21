@@ -60,18 +60,7 @@ const TodoList = () => {
   const deleteTodoHandler = (id: number) => {
     deleteTodoFromDb(id).then(res => {
       console.log(res, 'this is delted');
-      fetchTodosFromDB();
     });
-  };
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const fadeIn = () => {
-    fadeAnim.setValue(0);
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    }).start();
   };
 
   useEffect(() => {
