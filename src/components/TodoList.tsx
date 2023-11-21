@@ -17,28 +17,23 @@ import {
   selectTodos,
   setTodos,
 } from '../redux toolkit/slices/todoSlice';
-import {openDatabase} from 'react-native-sqlite-storage';
-import {fetchTodos} from '../services/dbService';
 import {addTask, createDbTable, deleteDbTable, deleteTodoFromDb, getAllTasks} from '../services/DBHandler';
 
-const db = openDatabase({name: 'todolist.db'});
 
 const TodoList = () => {
   const dispatch = useDispatch();
-  const [data, setData] = useState('');
-  const todos = useSelector(selectTodos);
+  const [data, setData] = useState<string>('');
+  const [taskList, setTaskList] = useState<[]>([]);
+  const todos: [] = useSelector(selectTodos);
 
-  const createTable = () => {
-    createDbTable().then(res=>{})
-  };
-
-
+//   const createTable = () => {
+//     createDbTable().then(res=>{})
+//   };
   const saveTodo = () => {
     addTask(data)
       .then(() => {
-        dispatch(addTask(data));
+        // dispatch(addTask(data));
         setData('');
-        fetchTodosFromDB()
       })
       .catch(() => {});;
   };
@@ -46,7 +41,7 @@ const TodoList = () => {
   const fetchTodosFromDB = () => {
     getAllTasks().then(res => {
       if (res) {
-        dispatch(setTodos(res))
+        // dispatch(setTodos(res))
       }
     });
   };
@@ -63,9 +58,6 @@ const TodoList = () => {
     fetchTodosFromDB()
    })
   };
-
- 
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const fadeIn = () => {
@@ -78,10 +70,14 @@ const TodoList = () => {
   };
 
   useEffect(() => {
-    createTable();
-    fetchTodosFromDB();
+    // createTable();
+    // createDbTable();
+    // fetchTodosFromDB();
+    getAllTasks().then((res: any) => {
+        setTaskList(res);
+    })
     // deleteTable();
-  }, []);
+  }, [taskList]);
 
   return (
     <View style={{flex: 1}}>
@@ -99,7 +95,7 @@ const TodoList = () => {
       </Text>
       <View style={{flex: 1}}>
         <FlatList
-          data={todos}
+          data={taskList}
           renderItem={({item, index}) => (
             <TodoItem
               item={item}

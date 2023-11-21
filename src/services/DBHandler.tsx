@@ -4,15 +4,15 @@ const db = openDatabase({name: 'todolist.db'});
 
 export const createDbTable = () => {
   return new Promise((resolve, reject) => {
-    db.transaction(txn => {
+    db.transaction((txn:object) => {
       txn.executeSql(
         `create table if not exists todos (id integer primary key autoincrement, todo varchar(100))`,
         [],
-        (sqltxn, res) => {
-          console.log('todos table created successfully');
+        (sqltxn:object, res: {}) => {
+          console.log('todos table created successfully', typeof res);
         },
-        error => {
-          console.log('error occurred while creating todos table', error);
+        (error: object) => {
+          console.log('error occurred while creating todos table', typeof error);
         },
       );
     });
@@ -21,11 +21,11 @@ export const createDbTable = () => {
 
 export const addTask = (data: string) => {
   return new Promise((resolve, reject) => {
-    db.transaction(txn => {
+    db.transaction((txn:object) => {
       txn.executeSql(
         'INSERT INTO todos (todo) VALUES (?)',
         [data],
-        (sqltxn, results) => {
+        (sqltxn:object, results:Array<[]>) => {
           if (results.rowsAffected > 0) {
             console.log('Todo saved to database');
           } else {
@@ -40,19 +40,18 @@ export const addTask = (data: string) => {
 export const deleteTodoFromDb=(id:number)=>{
     return new Promise((ress,reject)=>{
         console.log('Deleting todo with ID:', id);
-        db.transaction(txn => {
+        db.transaction((txn:object) => {
           txn.executeSql(
             'DELETE FROM todos WHERE id = ?',
             [id],
-            (sqltxn, results) => {
+            (sqltxn:object, results:[]) => {
               if (results.rowsAffected > 0) {
                 console.log('Todo deleted from database');
-                fetchTodosFromDB();
               } else {
                 console.log('Todo not deleted from database');
               }
             },
-            error => {
+            (error:object) => {
               console.error('Error deleting todo:', error);
             },
           );
@@ -62,15 +61,14 @@ export const deleteTodoFromDb=(id:number)=>{
 
 export const getAllTasks = () => {
   return new Promise((resolve, reject) => {
-    db.transaction(txn => {
-      txn.executeSql('SELECT * FROM todos', [], (sqltxn, res) => {
+    db.transaction((txn:object) => {
+      txn.executeSql('SELECT * FROM todos', [], (sqltxn:object, res:[]) => {
         let len = res.rows.length;
         let resultSet = [];
         for (let i = 0; i < len; i++) {
           let record = res.rows.item(i);
           resultSet.push({id: record.id, todo: record.todo});
         }
-        console.log('todos fetched:', resultSet);
         resolve(resultSet);
       });
     });
@@ -79,14 +77,14 @@ export const getAllTasks = () => {
 
 export const deleteDbTable = () => {
     return new Promise((resolve,reject)=>{
-        db.transaction(txn => {
+        db.transaction((txn:object) => {
             txn.executeSql(
               'DROP TABLE IF EXISTS todos',
               [],
-              (tx, result) => {
+              (txn:object, result:object) => {
                 console.log('Table deleted successfully');
               },
-              error => {
+              (error:object) => {
                 console.error('Error deleting table:', error);
               },
             );
