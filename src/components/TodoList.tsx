@@ -69,7 +69,7 @@ const TodoList = () => {
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 5000,
+      duration: 2000,
       useNativeDriver: true,
     }).start();
   };
@@ -90,7 +90,7 @@ const TodoList = () => {
         <View
           style={{
             width: '90%',
-            backgroundColor: 'white',
+            backgroundColor: 'rgb(255 255 255)',
             height: '70%',
             marginTop: 100,
             marginLeft: 20,
@@ -98,29 +98,54 @@ const TodoList = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
+          <TouchableOpacity
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: 'green',
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              position: 'absolute',
+              top: 30,
+              right: 30,
+            }}
+            onPress={() => {
+              setmodalVisible(false);
+            }}>
+            <Text style={{color: 'black', fontSize: 20, fontWeight: '700'}}>
+              X
+            </Text>
+          </TouchableOpacity>
+          <Text style={{color: 'black', marginRight: 190, fontSize: 20}}>
+            Description:
+          </Text>
           <TextInput
             style={{
               width: '70%',
-              height: 50,
+              height: 80,
               borderWidth: 1,
-              borderColor: 'black',
+              borderColor: 'green',
               borderRadius: 10,
               paddingLeft: 10,
             }}
-            placeholder="Enter your todo"
+            placeholder="Enter your task description"
             value={data}
             onChangeText={txt => setData(txt)}
+            placeholderTextColor={'black'}
           />
           <TouchableOpacity
             style={{
               justifyContent: 'center',
               alignItems: 'center',
               width: '50%',
-              height: 50,
+              height: 45,
               borderWidth: 1,
               borderColor: 'green',
               borderRadius: 15,
               marginTop: 20,
+              backgroundColor: 'blue',
             }}
             onPress={() => {
               if (data === '') {
@@ -128,9 +153,10 @@ const TodoList = () => {
               } else {
                 saveTodo();
                 setmodalVisible(false);
+                setData('');
               }
             }}>
-            <Text style={{color: 'black', fontSize: 20}}>Save Todo</Text>
+            <Text style={{color: 'white', fontSize: 20}}>Add Task</Text>
           </TouchableOpacity>
         </View>
       </Modal>

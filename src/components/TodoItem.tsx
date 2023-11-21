@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, TouchableOpacity, Animated, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 interface TodoItemProps {
-  item: { id: number; todo: string };
+  item: {id: number; todo: string};
   index: number;
   deleteTodo: (index: number) => void;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ item, index, deleteTodo }) => {
+const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
   const [fadeAnim] = useState(new Animated.Value(0));
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 3000,
+      duration: 2000,
       useNativeDriver: true,
     }).start();
   };
@@ -25,7 +25,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ item, index, deleteTodo }) => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.textContainer, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.textContainer, {opacity: fadeAnim}]}>
         <Text style={styles.numberText}>{index + 1}-</Text>
         <Text style={styles.text}>{item.todo}</Text>
       </Animated.View>
