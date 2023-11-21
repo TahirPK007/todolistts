@@ -43,7 +43,6 @@ const TodoList = () => {
   };
 
   const saveTodo = () => {
-    console.log('in save todo');
     addTask(data)
       .then(() => {
         dispatch(addTask(data));
