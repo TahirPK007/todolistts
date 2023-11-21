@@ -12,7 +12,6 @@ const TodoItem = ({item, index, deleteTodo}) => {
     }).start();
   };
   useEffect(() => {
-    console.log("what is item ? ====", item);
     fadeIn();
   }, []);
   return (

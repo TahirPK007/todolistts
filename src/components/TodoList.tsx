@@ -19,7 +19,7 @@ import {
 } from '../redux toolkit/slices/todoSlice';
 import {openDatabase} from 'react-native-sqlite-storage';
 import {fetchTodos} from '../services/dbService';
-import {addTask, getAllTasks} from '../services/DBHandler';
+import {addTask, createDbTable, deleteDbTable, deleteTodoFromDb, getAllTasks} from '../services/DBHandler';
 
 const db = openDatabase({name: 'todolist.db'});
 
@@ -27,89 +27,44 @@ const TodoList = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState('');
   const todos = useSelector(selectTodos);
+
   const createTable = () => {
-    db.transaction(txn => {
-      txn.executeSql(
-        `create table if not exists todos (id integer primary key autoincrement, todo varchar(100))`,
-        [],
-        (sqltxn, res) => {
-          console.log('todos table created successfully');
-        },
-        error => {
-          console.log('error occurred while creating todos table', error);
-        },
-      );
-    });
+    createDbTable().then(res=>{})
   };
+
 
   const saveTodo = () => {
     addTask(data)
       .then(() => {
         dispatch(addTask(data));
         setData('');
+        fetchTodosFromDB()
       })
-      .catch(() => {});
-    // db.transaction(txn => {
-    //   txn.executeSql(
-    //     'INSERT INTO todos (todo) VALUES (?)',
-    //     [data],
-    //     (sqltxn, results) => {
-    //       if (results.rowsAffected > 0) {
-    //         console.log('Todo saved to database');
-    //         fetchTodosFromDB();
-    //       } else {
-    //         console.log('Todo not saved to database');
-    //       }
-    //     },
-    //   );
-    // });
+      .catch(() => {});;
   };
 
   const fetchTodosFromDB = () => {
     getAllTasks().then(res => {
       if (res) {
-        console.log('response of getAllTasks ====', res);
         dispatch(setTodos(res))
-        fetchTodosFromDB()
       }
     });
   };
 
-  const deleteTodoHandler = id => {
-    console.log('Deleting todo with ID:', id);
-    db.transaction(txn => {
-      txn.executeSql(
-        'DELETE FROM todos WHERE id = ?',
-        [id],
-        (sqltxn, results) => {
-          if (results.rowsAffected > 0) {
-            console.log('Todo deleted from database');
-            fetchTodosFromDB();
-          } else {
-            console.log('Todo not deleted from database');
-          }
-        },
-        error => {
-          console.error('Error deleting todo:', error);
-        },
-      );
-    });
+  const deleteTable = () => {
+    deleteDbTable().then(res=>{
+
+    })
   };
 
-  const deleteTable = () => {
-    db.transaction(txn => {
-      txn.executeSql(
-        'DROP TABLE IF EXISTS todos',
-        [],
-        (tx, result) => {
-          console.log('Table deleted successfully');
-        },
-        error => {
-          console.error('Error deleting table:', error);
-        },
-      );
-    });
+  const deleteTodoHandler = (id:number) => {
+   deleteTodoFromDb(id).then(res=>{
+    console.log(res,'this is delted')
+    fetchTodosFromDB()
+   })
   };
+
+ 
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 

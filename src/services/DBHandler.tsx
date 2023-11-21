@@ -2,7 +2,7 @@ import {openDatabase} from 'react-native-sqlite-storage';
 
 const db = openDatabase({name: 'todolist.db'});
 
-export const createTable = () => {
+export const createDbTable = () => {
   return new Promise((resolve, reject) => {
     db.transaction(txn => {
       txn.executeSql(
@@ -37,6 +37,29 @@ export const addTask = (data: string) => {
   });
 };
 
+export const deleteTodoFromDb=(id:number)=>{
+    return new Promise((ress,reject)=>{
+        console.log('Deleting todo with ID:', id);
+        db.transaction(txn => {
+          txn.executeSql(
+            'DELETE FROM todos WHERE id = ?',
+            [id],
+            (sqltxn, results) => {
+              if (results.rowsAffected > 0) {
+                console.log('Todo deleted from database');
+                fetchTodosFromDB();
+              } else {
+                console.log('Todo not deleted from database');
+              }
+            },
+            error => {
+              console.error('Error deleting todo:', error);
+            },
+          );
+        });
+    })
+  }
+
 export const getAllTasks = () => {
   return new Promise((resolve, reject) => {
     db.transaction(txn => {
@@ -49,44 +72,31 @@ export const getAllTasks = () => {
         }
         console.log('todos fetched:', resultSet);
         resolve(resultSet);
-        //   dispatch(setTodos(resultSet));
       });
     });
   });
 };
 
-export const deleteTodoHandler = (id, fetchTodosFromDB) => {
-  console.log('Deleting todo with ID:', id);
-  db.transaction(txn => {
-    txn.executeSql(
-      'DELETE FROM todos WHERE id = ?',
-      [id],
-      (sqltxn, results) => {
-        if (results.rowsAffected > 0) {
-          console.log('Todo deleted from database');
-          fetchTodosFromDB();
-        } else {
-          console.log('Todo not deleted from database');
-        }
-      },
-      error => {
-        console.error('Error deleting todo:', error);
-      },
-    );
-  });
-};
+export const deleteDbTable = () => {
+    return new Promise((resolve,reject)=>{
+        db.transaction(txn => {
+            txn.executeSql(
+              'DROP TABLE IF EXISTS todos',
+              [],
+              (tx, result) => {
+                console.log('Table deleted successfully');
+              },
+              error => {
+                console.error('Error deleting table:', error);
+              },
+            );
+          });
+    })
+  };
 
-export const deleteTable = () => {
-  db.transaction(txn => {
-    txn.executeSql(
-      'DROP TABLE IF EXISTS todos',
-      [],
-      (tx, result) => {
-        console.log('Table deleted successfully');
-      },
-      error => {
-        console.error('Error deleting table:', error);
-      },
-    );
-  });
-};
+
+
+
+
+
+
