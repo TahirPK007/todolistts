@@ -21,8 +21,8 @@ interface TodoItemProps {
 const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [modalVisible, setmodalVisible] = useState(false);
-  const [data, setdata] = useState('');
-  const [id, setid] = useState();
+  const [data, setdata] = useState<string>('');
+  const [id, setid] = useState<number>();
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -32,7 +32,7 @@ const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
     }).start();
   };
 
-  const upTodo = (data, id) => {
+  const upTodo = (data: string, id: number) => {
     updateTodoInDb(data, id).then(res => {
       console.log('updated');
     });

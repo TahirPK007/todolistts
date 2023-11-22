@@ -2,7 +2,7 @@ import {openDatabase} from 'react-native-sqlite-storage';
 
 const db = openDatabase({name: 'todolist.db'});
 
-export const updateTodoInDb = (data, id) => {
+export const updateTodoInDb = (data: string, id: number) => {
   return new Promise((resolve, reject) => {
     db.transaction((txn: object) => {
       txn.executeSql(

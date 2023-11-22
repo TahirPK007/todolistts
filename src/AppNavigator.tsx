@@ -17,7 +17,9 @@ const HomeTabs = () => {
         name="Home"
         component={Home}
         options={{
-          tabBarIcon: ({color, size}) => <Icon name="home" size={30} />,
+          tabBarIcon: ({color, size}) => (
+            <Icon name="home" size={30} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -25,7 +27,7 @@ const HomeTabs = () => {
         component={Screen2}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Icon name="user" size={size} color={color} />
+            <Icon name="user" size={30} color={color} />
           ),
         }}
       />
