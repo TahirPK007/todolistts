@@ -78,11 +78,15 @@ const BoxDrag = () => {
       onPanResponderMove: (e, gesture) => {
         console.log('this is gesture', gesture);
         const {dx, dy} = gesture;
-        if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) <= 200) {
           pan.setValue({x: dx, y: 0});
-        } else {
+        }
+        if (Math.abs(dy) > Math.abs(dx)) {
           pan.setValue({x: 0, y: dy});
         }
+        // else {
+        //   pan.setValue({x: 0, y: dy});
+        // }
       },
       onPanResponderRelease: (e, gesture) => {
         Animated.spring(pan, {
