@@ -1,10 +1,18 @@
 import {View, Text, StyleSheet} from 'react-native';
 import React from 'react';
+import {useNavigation} from '@react-navigation/native';
 
 const Screen2 = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <Text style={styles.txt}>Screen 2</Text>
+      <Text
+        style={styles.txt}
+        onPress={() => {
+          navigation.goBack();
+        }}>
+        Screen 2
+      </Text>
     </View>
   );
 };
@@ -18,6 +26,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: 'black',
-    fontSize: 100,
+    fontSize: 70,
   },
 });

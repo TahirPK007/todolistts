@@ -45,6 +45,10 @@ const TodoList = () => {
       .catch(() => {});
   };
 
+  const createTable = () => {
+    createDbTable().then();
+  };
+
   const fetchTodosFromDB = () => {
     getAllTasks().then(res => {
       if (res) {
@@ -64,7 +68,6 @@ const TodoList = () => {
   };
 
   useEffect(() => {
-    // createTable();
     // createDbTable();
     // fetchTodosFromDB();
     getAllTasks().then((res: any) => {
@@ -75,31 +78,10 @@ const TodoList = () => {
 
   return (
     <View style={{flex: 1}}>
-      <Modal visible={modalVisible} transparent={true}>
-        <View
-          style={{
-            width: '90%',
-            backgroundColor: 'rgb(255 255 255)',
-            height: '70%',
-            marginTop: 100,
-            marginLeft: 20,
-            borderRadius: 15,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalstyle}>
           <TouchableOpacity
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: 'green',
-              width: 50,
-              height: 50,
-              borderRadius: 25,
-              position: 'absolute',
-              top: 30,
-              right: 30,
-            }}
+            style={styles.modalbtn}
             onPress={() => {
               setmodalVisible(false);
             }}>
@@ -111,31 +93,14 @@ const TodoList = () => {
             Description:
           </Text>
           <TextInput
-            style={{
-              width: '70%',
-              height: 80,
-              borderWidth: 1,
-              borderColor: 'green',
-              borderRadius: 10,
-              paddingLeft: 10,
-            }}
+            style={styles.txtinput}
             placeholder="Enter your task description"
             value={data}
             onChangeText={txt => setData(txt)}
             placeholderTextColor={'black'}
           />
           <TouchableOpacity
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '50%',
-              height: 45,
-              borderWidth: 1,
-              borderColor: 'green',
-              borderRadius: 15,
-              marginTop: 20,
-              backgroundColor: 'blue',
-            }}
+            style={styles.addtaskbtn}
             onPress={() => {
               if (data === '') {
                 Alert.alert('Please enter something');
@@ -149,19 +114,8 @@ const TodoList = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-      <Text
-        style={{
-          textAlign: 'center',
-          fontSize: 30,
-          color: 'blue',
-          fontWeight: 'bold',
-          marginTop: 20,
-          borderBottomWidth: 1,
-          borderBottomColor: 'black',
-        }}>
-        Todo List
-      </Text>
-      <View style={{flex: 1}}>
+      <Text style={styles.headertxt}>Todo List</Text>
+      <View style={{}}>
         <FlatList
           data={taskList}
           renderItem={({item, index}) => (
@@ -177,18 +131,7 @@ const TodoList = () => {
       </View>
 
       <TouchableOpacity
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderWidth: 1,
-          borderColor: 'green',
-          width: 50,
-          height: 50,
-          borderRadius: 25,
-          position: 'absolute',
-          bottom: 30,
-          right: 30,
-        }}
+        style={styles.plusbtn}
         onPress={() => {
           setmodalVisible(true);
         }}>
@@ -199,3 +142,69 @@ const TodoList = () => {
 };
 
 export default TodoList;
+
+const styles = StyleSheet.create({
+  modalstyle: {
+    width: '90%',
+    backgroundColor: 'white',
+    height: '70%',
+    marginTop: 100,
+    marginLeft: 20,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalbtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'green',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    position: 'absolute',
+    top: 30,
+    right: 30,
+  },
+  txtinput: {
+    width: '70%',
+    height: 80,
+    borderWidth: 1,
+    borderColor: 'green',
+    borderRadius: 10,
+    paddingLeft: 10,
+    color: 'black',
+  },
+  addtaskbtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '50%',
+    height: 45,
+    borderWidth: 1,
+    borderColor: 'green',
+    borderRadius: 15,
+    marginTop: 20,
+    backgroundColor: 'blue',
+  },
+  headertxt: {
+    textAlign: 'center',
+    fontSize: 30,
+    color: 'blue',
+    fontWeight: 'bold',
+    marginTop: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'black',
+  },
+  plusbtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'green',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+  },
+});

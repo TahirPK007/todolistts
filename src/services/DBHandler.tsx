@@ -29,13 +29,10 @@ export const createDbTable = () => {
         `create table if not exists todos (id integer primary key autoincrement, todo varchar(100))`,
         [],
         (sqltxn: object, res: {}) => {
-          console.log('todos table created successfully', typeof res);
+          console.log('todos table created successfully');
         },
         (error: object) => {
-          console.log(
-            'error occurred while creating todos table',
-            typeof error,
-          );
+          console.log('error occurred while creating todos table');
         },
       );
     });

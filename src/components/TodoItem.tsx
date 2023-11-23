@@ -33,9 +33,7 @@ const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
   };
 
   const upTodo = (data: string, id: number) => {
-    updateTodoInDb(data, id).then(res => {
-      console.log('updated');
-    });
+    updateTodoInDb(data, id).then(res => {});
   };
 
   useEffect(() => {
@@ -44,7 +42,7 @@ const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
 
   return (
     <View style={styles.container}>
-      <Modal visible={modalVisible} transparent={true}>
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View
           style={{
             width: '90%',
@@ -87,6 +85,7 @@ const TodoItem: React.FC<TodoItemProps> = ({item, index, deleteTodo}) => {
               borderColor: 'green',
               borderRadius: 10,
               paddingLeft: 10,
+              color: 'black',
             }}
             placeholder="Enter your task description"
             value={data}

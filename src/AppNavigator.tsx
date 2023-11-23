@@ -6,6 +6,10 @@ import TodoList from './components/TodoList';
 import Home from './screens/Home';
 import Screen2 from './screens/Screen2';
 import Icon from 'react-native-vector-icons/AntDesign';
+import BoxDrag from './screens/BoxDrag';
+import ImageGallery from './screens/ImageGallery';
+import Show from './screens/Show';
+import GalleryVideo from './screens/GalleryVideo';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,6 +44,10 @@ const AppNavigator = () => {
     <Drawer.Navigator>
       <Drawer.Screen name="HomeTabs" component={HomeTabs} options={{}} />
       <Drawer.Screen name="TodoList" component={TodoList} options={{}} />
+      <Drawer.Screen name="BoxDrag" component={BoxDrag} options={{}} />
+      <Drawer.Screen name="Picker" component={ImageGallery} />
+      <Drawer.Screen name="Gallery" component={Show} />
+      <Drawer.Screen name="GalleryVideo" component={GalleryVideo} />
     </Drawer.Navigator>
   );
 };
