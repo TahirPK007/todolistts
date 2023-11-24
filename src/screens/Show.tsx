@@ -230,6 +230,7 @@
 // };
 // export default Show;
 
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -239,53 +240,77 @@ import {
   FlatList,
   Modal,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-import {useRoute} from '@react-navigation/native';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
-import {openDatabase} from 'react-native-sqlite-storage';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
+import ImageResizer from 'react-native-image-resizer';
+import {openDatabase} from 'react-native-sqlite-storage';
+
 const db = openDatabase({name: 'todolist.db'});
+
 const Show = () => {
-  const [imgpaths, setimgpaths] = useState([]);
+  const [imgPaths, setImgPaths] = useState([]);
   const navigation = useNavigation();
-  const [selectedimage, setselectedimage] = useState(null);
-  const [visible, setvisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [visible, setVisible] = useState(false);
   const isFocused = useIsFocused();
+
   const FullSizeImg = () => {
     return (
       <Modal visible={visible}>
-        <TouchableOpacity
+        <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             flex: 1,
-          }}
-          onPress={() => {
-            setvisible(false);
-            setselectedimage(null);
           }}>
           <Image
-            source={{uri: selectedimage}}
+            source={{uri: selectedImage}}
             style={{height: '100%', width: '100%', resizeMode: 'contain'}}
           />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              width: 40,
+              height: 40,
+              borderWidth: 1,
+              borderColor: 'red',
+              borderRadius: 20,
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              top: 50,
+              right: 20,
+              backgroundColor: 'black',
+            }}
+            onPress={() => {
+              setVisible(false);
+              setSelectedImage(null);
+            }}>
+            <Text style={{color: 'white', fontSize: 15, fontWeight: '700'}}>
+              X
+            </Text>
+          </TouchableOpacity>
+        </View>
       </Modal>
     );
   };
-  const getAllimgs = () => {
+
+  const getAllImages = async () => {
     db.transaction(txn => {
       txn.executeSql(
         'SELECT id, imgpath FROM images',
         [],
-        (sqltxn, res) => {
+        async (sqltxn, res) => {
           let len = res.rows.length;
           let resultSet = [];
           for (let i = 0; i < len; i++) {
             let record = res.rows.item(i);
-            resultSet.push({id: record.id, imgpath: record.imgpath});
+            let thumbnailPath = await resizeImage(record.imgpath, 100, 100);
+            resultSet.push({
+              id: record.id,
+              imgpath: record.imgpath,
+              thumbnailPath: thumbnailPath,
+            });
           }
-          setimgpaths(resultSet);
+          setImgPaths(resultSet);
         },
         error => {
           console.log('Error occurred during Fetching WishList:', error);
@@ -294,29 +319,31 @@ const Show = () => {
     });
   };
 
+  const resizeImage = async (sourceUri, targetWidth, targetHeight) => {
+    try {
+      const resizedImage = await ImageResizer.createResizedImage(
+        sourceUri,
+        targetWidth,
+        targetHeight,
+        'JPEG',
+        80,
+      );
+
+      return resizedImage.uri;
+    } catch (error) {
+      console.error('Error resizing image:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    getAllimgs();
+    getAllImages();
   }, [isFocused]);
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
-      <Text
-        style={{
-          alignSelf: 'center',
-          fontSize: 20,
-          color: 'white',
-          marginBottom: 10,
-          fontWeight: '600',
-          backgroundColor: 'blue',
-          borderRadius: 10,
-          padding: 5,
-          width: '90%',
-          textAlign: 'center',
-        }}>
-        Multiple Images
-      </Text>
       <FlatList
-        data={imgpaths}
+        data={imgPaths}
         numColumns={3}
         renderItem={({item, index}) => {
           return (
@@ -330,11 +357,11 @@ const Show = () => {
                 height: 200,
               }}
               onPress={() => {
-                setselectedimage(item.imgpath);
-                setvisible(true);
+                setSelectedImage(item.imgpath);
+                setVisible(true);
               }}>
               <Image
-                source={{uri: item.imgpath}}
+                source={{uri: item.thumbnailPath}}
                 style={{height: '100%', width: '100%', resizeMode: 'cover'}}
               />
             </TouchableOpacity>
@@ -345,4 +372,5 @@ const Show = () => {
     </View>
   );
 };
+
 export default Show;

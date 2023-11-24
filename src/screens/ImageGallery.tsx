@@ -98,28 +98,32 @@ const ImageGallery = () => {
     });
   };
 
-  const addImage = data => {
-    db.transaction(txn => {
-      txn.executeSql(
-        'insert into images (imgpath) VALUES (?)',
-        [data],
-        (sqltxn, res) => {
-          console.log('inserted successfully');
-          setdata(data);
-        },
-        error => {
-          console.log('Error occurred while inserting...');
-        },
-      );
+  const [multipleimages, setmultipleimages] = useState([]);
+
+  const addingimgs = () => {
+    multipleimages.map(item => {
+      db.transaction(txn => {
+        txn.executeSql(
+          'insert into images (imgpath) VALUES (?)',
+          [item.path],
+          (sqltxn, res) => {
+            console.log('Inserted successfully');
+          },
+          error => {
+            console.log('Error occurred while inserting:', error);
+          },
+        );
+      });
     });
   };
-
-  // console.log('current image path', data);
-
+  console.log('these are multiple images', multipleimages);
   useEffect(() => {
     // createTable();
-  }, []);
-
+    if (multipleimages.length > 0) {
+      addingimgs();
+      setmultipleimages([]);
+    }
+  }, [multipleimages]);
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <TouchableOpacity
@@ -133,9 +137,11 @@ const ImageGallery = () => {
           backgroundColor: 'black',
         }}
         onPress={() => {
-          ImagePicker.openPicker({}).then(images => {
-            console.log(images);
-            addImage(images.path);
+          ImagePicker.openPicker({
+            multiple: true,
+          }).then(images => {
+            setmultipleimages(images);
+            addingimgs();
             navigation.navigate('Gallery');
           });
         }}>
@@ -167,5 +173,4 @@ const ImageGallery = () => {
     </View>
   );
 };
-
 export default ImageGallery;

@@ -71,6 +71,8 @@
 import {View, Text, Animated, PanResponder} from 'react-native';
 import React, {useRef, useState} from 'react';
 const BoxDrag = () => {
+  const xaxisstarted = useRef(false);
+  const yaxisstarted = useRef(false);
   const pan = useRef(new Animated.ValueXY()).current;
   const panResponder = useRef(
     PanResponder.create({
@@ -78,15 +80,18 @@ const BoxDrag = () => {
       onPanResponderMove: (e, gesture) => {
         console.log('this is gesture', gesture);
         const {dx, dy} = gesture;
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) <= 200) {
-          pan.setValue({x: dx, y: 0});
+        if (!xaxisstarted.current && !yaxisstarted.current) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            xaxisstarted.current = true;
+          } else {
+            yaxisstarted.current = true;
+          }
         }
-        if (Math.abs(dy) > Math.abs(dx)) {
+        if (xaxisstarted.current) {
+          pan.setValue({x: dx, y: 0});
+        } else if (yaxisstarted.current) {
           pan.setValue({x: 0, y: dy});
         }
-        // else {
-        //   pan.setValue({x: 0, y: dy});
-        // }
       },
       onPanResponderRelease: (e, gesture) => {
         Animated.spring(pan, {
