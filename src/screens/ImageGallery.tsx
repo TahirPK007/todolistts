@@ -116,7 +116,7 @@ const ImageGallery = () => {
       });
     });
   };
-  console.log('these are multiple images', multipleimages);
+
   useEffect(() => {
     // createTable();
     if (multipleimages.length > 0) {
@@ -124,6 +124,7 @@ const ImageGallery = () => {
       setmultipleimages([]);
     }
   }, [multipleimages]);
+
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <TouchableOpacity
@@ -146,29 +147,6 @@ const ImageGallery = () => {
           });
         }}>
         <Text style={{color: 'white'}}>Pick Image</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{
-          borderWidth: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: 100,
-          height: 40,
-          borderRadius: 10,
-          backgroundColor: 'black',
-          marginTop: 20,
-        }}
-        onPress={() => {
-          ImagePicker.openPicker({
-            mediaType: 'video',
-          }).then(video => {
-            console.log(video);
-            navigation.navigate('GalleryVideo', {
-              video: video,
-            });
-          });
-        }}>
-        <Text style={{color: 'white'}}>Pick Video</Text>
       </TouchableOpacity>
     </View>
   );

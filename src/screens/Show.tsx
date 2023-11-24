@@ -239,6 +239,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import ImageResizer from 'react-native-image-resizer';
@@ -252,6 +253,8 @@ const Show = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [visible, setVisible] = useState(false);
   const isFocused = useIsFocused();
+  const imageLimit = 10;
+  const [offset, setoffset] = useState(0);
 
   const FullSizeImg = () => {
     return (
@@ -296,24 +299,24 @@ const Show = () => {
   const getAllImages = async () => {
     db.transaction(txn => {
       txn.executeSql(
-        'SELECT id, imgpath FROM images',
+        `SELECT id, imgpath FROM images LIMIT ${imageLimit} OFFSET ${offset}`,
         [],
         async (sqltxn, res) => {
           let len = res.rows.length;
           let resultSet = [];
           for (let i = 0; i < len; i++) {
             let record = res.rows.item(i);
-            let thumbnailPath = await resizeImage(record.imgpath, 100, 100);
+            let thumbnailPath = await resizeImage(record.imgpath, 200, 200);
             resultSet.push({
               id: record.id,
               imgpath: record.imgpath,
               thumbnailPath: thumbnailPath,
             });
           }
-          setImgPaths(resultSet);
+          setImgPaths(prevImgPaths => [...prevImgPaths, ...resultSet]);
         },
         error => {
-          console.log('Error occurred during Fetching WishList:', error);
+          console.log('Error occurred during Fetching data:', error);
         },
       );
     });
@@ -336,7 +339,14 @@ const Show = () => {
     }
   };
 
+  const loadMore = () => {
+    setoffset(offset + imageLimit);
+    getAllImages();
+  };
+
   useEffect(() => {
+    setImgPaths([]);
+    setoffset(0);
     getAllImages();
   }, [isFocused]);
 
@@ -345,6 +355,8 @@ const Show = () => {
       <FlatList
         data={imgPaths}
         numColumns={3}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.1}
         renderItem={({item, index}) => {
           return (
             <TouchableOpacity
