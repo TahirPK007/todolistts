@@ -244,6 +244,8 @@ import {
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import ImageResizer from 'react-native-image-resizer';
 import {openDatabase} from 'react-native-sqlite-storage';
+import Video from 'react-native-video';
+import VideoPlayer from 'react-native-video-controls';
 
 const db = openDatabase({name: 'todolist.db'});
 
@@ -251,10 +253,14 @@ const Show = () => {
   const [imgPaths, setImgPaths] = useState([]);
   const navigation = useNavigation();
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedVideo, setselectedVideo] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [visible2, setvisible2] = useState(false);
   const isFocused = useIsFocused();
   const imageLimit = 10;
   const [offset, setoffset] = useState(0);
+
+  const [media, setmedia] = useState([]);
 
   const FullSizeImg = () => {
     return (
@@ -265,10 +271,19 @@ const Show = () => {
             alignItems: 'center',
             flex: 1,
           }}>
-          <Image
-            source={{uri: selectedImage}}
-            style={{height: '100%', width: '100%', resizeMode: 'contain'}}
-          />
+          {selectedImage && selectedImage.type === 'image' ? (
+            <Image
+              source={{uri: selectedImage.path}}
+              style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+            />
+          ) : selectedImage && selectedImage.type === 'video' ? (
+            <VideoPlayer
+              scrubbing={0}
+              source={{uri: selectedImage.path}}
+              style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+            />
+          ) : null}
+
           <TouchableOpacity
             style={{
               width: 40,
@@ -296,24 +311,28 @@ const Show = () => {
     );
   };
 
-  const getAllImages = async () => {
+  const getAllMedia = async () => {
     db.transaction(txn => {
       txn.executeSql(
-        `SELECT id, imgpath FROM images LIMIT ${imageLimit} OFFSET ${offset}`,
+        `SELECT id,path,type FROM media LIMIT ${imageLimit} OFFSET ${offset}`,
         [],
         async (sqltxn, res) => {
           let len = res.rows.length;
           let resultSet = [];
           for (let i = 0; i < len; i++) {
             let record = res.rows.item(i);
-            let thumbnailPath = await resizeImage(record.imgpath, 200, 200);
+            let thumbnailPath;
+            if (record.type === 'image') {
+              thumbnailPath = await resizeImage(record.path, 200, 200);
+            }
             resultSet.push({
               id: record.id,
-              imgpath: record.imgpath,
+              path: record.path,
+              type: record.type,
               thumbnailPath: thumbnailPath,
             });
           }
-          setImgPaths(prevImgPaths => [...prevImgPaths, ...resultSet]);
+          setmedia(prevMedia => [...prevMedia, ...resultSet]);
         },
         error => {
           console.log('Error occurred during Fetching data:', error);
@@ -341,19 +360,19 @@ const Show = () => {
 
   const loadMore = () => {
     setoffset(offset + imageLimit);
-    getAllImages();
+    getAllMedia();
   };
 
   useEffect(() => {
-    setImgPaths([]);
+    setmedia([]);
     setoffset(0);
-    getAllImages();
+    getAllMedia();
   }, [isFocused]);
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <FlatList
-        data={imgPaths}
+        data={media}
         numColumns={3}
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
@@ -369,13 +388,21 @@ const Show = () => {
                 height: 200,
               }}
               onPress={() => {
-                setSelectedImage(item.imgpath);
+                setSelectedImage(item);
                 setVisible(true);
               }}>
-              <Image
-                source={{uri: item.thumbnailPath}}
-                style={{height: '100%', width: '100%', resizeMode: 'cover'}}
-              />
+              {item.type === 'image' ? (
+                <Image
+                  source={{uri: item.thumbnailPath}}
+                  style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+                />
+              ) : (
+                <Video
+                  source={{uri: item.path}}
+                  style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+                  controls
+                />
+              )}
             </TouchableOpacity>
           );
         }}
@@ -384,5 +411,4 @@ const Show = () => {
     </View>
   );
 };
-
 export default Show;

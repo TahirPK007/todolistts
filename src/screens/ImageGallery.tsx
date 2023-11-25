@@ -86,7 +86,7 @@ const ImageGallery = () => {
   const createTable = () => {
     db.transaction(txn => {
       txn.executeSql(
-        `create Table if not Exists images (id INTEGER PRIMARY KEY AUTOINCREMENT,imgpath TEXT)`,
+        `create Table if not Exists media (id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT,type TEXT)`,
         [],
         (sqltxn, res) => {
           console.log(' Table created Successfully..');
@@ -98,14 +98,14 @@ const ImageGallery = () => {
     });
   };
 
-  const [multipleimages, setmultipleimages] = useState([]);
+  const [multipleMedia, setMultipleMedia] = useState([]);
 
-  const addingimgs = () => {
-    multipleimages.map(item => {
+  const addMediaToDb = () => {
+    multipleMedia.map(item => {
       db.transaction(txn => {
         txn.executeSql(
-          'insert into images (imgpath) VALUES (?)',
-          [item.path],
+          'insert into media (path,type) VALUES (?,?)',
+          [item.path, item.mime.startsWith('image') ? 'image' : 'video'],
           (sqltxn, res) => {
             console.log('Inserted successfully');
           },
@@ -117,13 +117,29 @@ const ImageGallery = () => {
     });
   };
 
+  const dropTable = () => {
+    db.transaction((txn: object) => {
+      txn.executeSql(
+        'DROP TABLE IF EXISTS images',
+        [],
+        (txn: object, result: object) => {
+          console.log('Table deleted successfully');
+        },
+        (error: object) => {
+          console.error('Error deleting table:', error);
+        },
+      );
+    });
+  };
+
   useEffect(() => {
+    // dropTable();
     // createTable();
-    if (multipleimages.length > 0) {
-      addingimgs();
-      setmultipleimages([]);
+    if (multipleMedia.length > 0) {
+      addMediaToDb();
+      setMultipleMedia([]);
     }
-  }, [multipleimages]);
+  }, [multipleMedia]);
 
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -140,13 +156,13 @@ const ImageGallery = () => {
         onPress={() => {
           ImagePicker.openPicker({
             multiple: true,
-          }).then(images => {
-            setmultipleimages(images);
-            addingimgs();
+          }).then(media => {
+            setMultipleMedia(media);
+            addMediaToDb();
             navigation.navigate('Gallery');
           });
         }}>
-        <Text style={{color: 'white'}}>Pick Image</Text>
+        <Text style={{color: 'white'}}>Pick Media</Text>
       </TouchableOpacity>
     </View>
   );
