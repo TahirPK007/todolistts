@@ -259,12 +259,12 @@ const Show = () => {
   const isFocused = useIsFocused();
   const imageLimit = 10;
   const [offset, setoffset] = useState(0);
-
   const [media, setmedia] = useState([]);
+  const [isVideoPlaying, setisVideoPlaying] = useState(false);
 
   const FullSizeImg = () => {
     return (
-      <Modal visible={visible}>
+      <Modal visible={visible} transparent={true}>
         <View
           style={{
             justifyContent: 'center',
@@ -277,11 +277,17 @@ const Show = () => {
               style={{height: '100%', width: '100%', resizeMode: 'cover'}}
             />
           ) : selectedImage && selectedImage.type === 'video' ? (
-            <VideoPlayer
-              scrubbing={0}
-              source={{uri: selectedImage.path}}
-              style={{height: '100%', width: '100%', resizeMode: 'cover'}}
-            />
+            <TouchableOpacity
+              style={{height: '100%', width: '100%'}}
+              onPress={() => {
+                setisVideoPlaying(!isVideoPlaying);
+              }}>
+              <VideoPlayer
+                scrubbing={0}
+                source={{uri: selectedImage.path}}
+                style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+              />
+            </TouchableOpacity>
           ) : null}
 
           <TouchableOpacity
@@ -301,6 +307,7 @@ const Show = () => {
             onPress={() => {
               setVisible(false);
               setSelectedImage(null);
+              setisVideoPlaying(false);
             }}>
             <Text style={{color: 'white', fontSize: 15, fontWeight: '700'}}>
               X
@@ -397,11 +404,21 @@ const Show = () => {
                   style={{height: '100%', width: '100%', resizeMode: 'cover'}}
                 />
               ) : (
-                <Video
-                  source={{uri: item.path}}
-                  style={{height: '100%', width: '100%', resizeMode: 'cover'}}
-                  controls
-                />
+                <View style={{height: '100%', width: '100%'}}>
+                  <Video
+                    source={{uri: item.path}}
+                    style={{height: '100%', width: '100%'}}
+                    controls
+                    paused={!isVideoPlaying}
+                    repeat={true}
+                  />
+                  <View style={{position: 'absolute', top: 30, left: 30}}>
+                    <Image
+                      source={require('../../images/play.png')}
+                      style={{height: 50, width: 50}}
+                    />
+                  </View>
+                </View>
               )}
             </TouchableOpacity>
           );
