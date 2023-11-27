@@ -120,7 +120,7 @@ const ImageGallery = () => {
   const dropTable = () => {
     db.transaction((txn: object) => {
       txn.executeSql(
-        'DROP TABLE IF EXISTS images',
+        'DROP TABLE IF EXISTS media',
         [],
         (txn: object, result: object) => {
           console.log('Table deleted successfully');

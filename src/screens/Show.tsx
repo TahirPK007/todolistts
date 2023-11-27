@@ -246,6 +246,7 @@ import ImageResizer from 'react-native-image-resizer';
 import {openDatabase} from 'react-native-sqlite-storage';
 import Video from 'react-native-video';
 import VideoPlayer from 'react-native-video-controls';
+import RNFS from 'react-native-fs';
 
 const db = openDatabase({name: 'todolist.db'});
 
@@ -255,9 +256,8 @@ const Show = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setselectedVideo] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [visible2, setvisible2] = useState(false);
   const isFocused = useIsFocused();
-  const imageLimit = 10;
+  const imageLimit = 12;
   const [offset, setoffset] = useState(0);
   const [media, setmedia] = useState([]);
   const [isVideoPlaying, setisVideoPlaying] = useState(false);
@@ -284,6 +284,7 @@ const Show = () => {
               }}>
               <VideoPlayer
                 scrubbing={0}
+                disableBack
                 source={{uri: selectedImage.path}}
                 style={{height: '100%', width: '100%', resizeMode: 'cover'}}
               />
@@ -339,7 +340,11 @@ const Show = () => {
               thumbnailPath: thumbnailPath,
             });
           }
-          setmedia(prevMedia => [...prevMedia, ...resultSet]);
+          if (offset === 0) {
+            setmedia([...resultSet]);
+          } else {
+            setmedia(prevMedia => [...prevMedia, ...resultSet]);
+          }
         },
         error => {
           console.log('Error occurred during Fetching data:', error);
@@ -366,23 +371,21 @@ const Show = () => {
   };
 
   const loadMore = () => {
-    setoffset(offset + imageLimit);
-    getAllMedia();
+    setoffset(prevOffset => prevOffset + imageLimit);
   };
 
   useEffect(() => {
-    setmedia([]);
-    setoffset(0);
     getAllMedia();
-  }, [isFocused]);
+  }, [isFocused, offset]);
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{flex: 1, backgroundColor: 'white', paddingLeft: 10}}>
       <FlatList
         data={media}
         numColumns={3}
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
+        keyExtractor={(item, index) => item.id.toString() + index.toString()}
         renderItem={({item, index}) => {
           return (
             <TouchableOpacity
@@ -405,17 +408,16 @@ const Show = () => {
                 />
               ) : (
                 <View style={{height: '100%', width: '100%'}}>
-                  <Video
+                  <VideoPlayer
                     source={{uri: item.path}}
-                    style={{height: '100%', width: '100%'}}
-                    controls
                     paused={!isVideoPlaying}
-                    repeat={true}
+                    showOnStart={false}
+                    style={{height: '100%', width: '100%'}}
                   />
-                  <View style={{position: 'absolute', top: 30, left: 30}}>
+                  <View style={{position: 'absolute', top: 70, left: 35}}>
                     <Image
                       source={require('../../images/play.png')}
-                      style={{height: 50, width: 50}}
+                      style={{height: 50, width: 50, tintColor: 'white'}}
                     />
                   </View>
                 </View>
