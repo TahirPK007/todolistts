@@ -10,6 +10,8 @@ import BoxDrag from './screens/BoxDrag';
 import ImageGallery from './screens/ImageGallery';
 import Show from './screens/Show';
 import GalleryVideo from './screens/GalleryVideo';
+import CaptureImage from './screens/CaptureImage';
+import VisionCamera from './screens/VisionCamera';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,6 +50,8 @@ const AppNavigator = () => {
       <Drawer.Screen name="Picker" component={ImageGallery} />
       <Drawer.Screen name="Gallery" component={Show} />
       <Drawer.Screen name="GalleryVideo" component={GalleryVideo} />
+      <Drawer.Screen name="CaptureImage" component={CaptureImage} />
+      <Drawer.Screen name="VisionCamera" component={VisionCamera} />
     </Drawer.Navigator>
   );
 };

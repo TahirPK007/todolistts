@@ -83,6 +83,7 @@ const db = openDatabase({name: 'todolist.db'});
 const ImageGallery = () => {
   const navigation = useNavigation();
   const [data, setdata] = useState('');
+
   const createTable = () => {
     db.transaction(txn => {
       txn.executeSql(
