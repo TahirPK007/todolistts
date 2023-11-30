@@ -24,6 +24,7 @@
     "react-native-image-picker": "^7.0.3",
     "react-native-image-resizer": "^1.4.5",
     "react-native-reanimated": "^3.5.4",
+    "react-native-receive-sharing-intent": "^2.0.0",
     "react-native-safe-area-context": "^4.7.4",
     "react-native-screens": "^3.27.0",
     "react-native-share": "^10.0.1",

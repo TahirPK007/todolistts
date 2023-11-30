@@ -241,12 +241,15 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
+import {
+  useNavigation,
+  useIsFocused,
+  useFocusEffect,
+} from '@react-navigation/native';
 import ImageResizer from 'react-native-image-resizer';
 import {openDatabase} from 'react-native-sqlite-storage';
 import Video from 'react-native-video';
 import VideoPlayer from 'react-native-video-controls';
-import RNFS from 'react-native-fs';
 
 const db = openDatabase({name: 'todolist.db'});
 
@@ -257,7 +260,7 @@ const Show = () => {
   const [selectedVideo, setselectedVideo] = useState(null);
   const [visible, setVisible] = useState(false);
   const isFocused = useIsFocused();
-  const imageLimit = 12;
+  const imageLimit = 27;
   const [offset, setoffset] = useState(0);
   const [media, setmedia] = useState([]);
   const [isVideoPlaying, setisVideoPlaying] = useState(false);
@@ -322,7 +325,7 @@ const Show = () => {
   const getAllMedia = async () => {
     db.transaction(txn => {
       txn.executeSql(
-        `SELECT id,path,type FROM media LIMIT ${imageLimit} OFFSET ${offset}`,
+        `SELECT id,path,type FROM media ORDER BY id DESC LIMIT ${imageLimit} OFFSET ${offset}`,
         [],
         async (sqltxn, res) => {
           let len = res.rows.length;
@@ -374,9 +377,17 @@ const Show = () => {
     setoffset(prevOffset => prevOffset + imageLimit);
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getAllMedia();
+
+      return () => {};
+    }, [offset]),
+  );
+
   useEffect(() => {
     getAllMedia();
-  }, [isFocused, offset]);
+  }, [offset]);
 
   return (
     <View style={{flex: 1, backgroundColor: 'white', paddingLeft: 10}}>
@@ -384,7 +395,7 @@ const Show = () => {
         data={media}
         numColumns={3}
         onEndReached={loadMore}
-        onEndReachedThreshold={0.1}
+        onEndReachedThreshold={0.5}
         keyExtractor={(item, index) => item.id.toString() + index.toString()}
         renderItem={({item, index}) => {
           return (

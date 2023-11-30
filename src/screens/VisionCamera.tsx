@@ -15,7 +15,6 @@ const db = openDatabase({name: 'todolist.db'});
 
 const VisionCamera = () => {
   const [capturedImage, setCapturedImage] = useState(null);
-  const [loading, setLoading] = useState(true);
   const cameraRef = useRef();
   const back = useCameraDevice('back');
   const front = useCameraDevice('front');
@@ -55,13 +54,21 @@ const VisionCamera = () => {
   };
 
   const checkPermission = async () => {
-    const cameraPermission = await Camera.getCameraPermissionStatus();
+    // try {
+    //   const cameraPermission=await PermissionsAndroid.request()
+
+    // } catch (error) {
+
+    // }
+    const cameraPermission = await Camera.requestCameraPermission();
     const microphonePermission = await Camera.getMicrophonePermissionStatus();
     console.log(cameraPermission);
   };
 
   const takePicture = async () => {
-    const photo = await cameraRef.current.takePhoto();
+    const photo = await cameraRef.current.takePhoto({
+      flashMode: 'auto',
+    });
     addImageToDb(photo.path, 'image');
     console.log('this is photo details', photo.path);
     setCapturedImage(photo.path);
@@ -109,48 +116,46 @@ const VisionCamera = () => {
   }, []);
 
   return (
-    <View style={{flex: 1}}>
-      <View>
-        <FullSizeImage />
-      </View>
+    <View style={{flex: 1, backgroundColor: 'black'}}>
+      <FullSizeImage />
 
       <Camera
         ref={cameraRef}
-        style={{flex: 1}}
         device={cameraMode}
         isActive={true}
         photo={true}
         torch={flashMode}
+        flash={'auto'}
+        style={{width: '100%', height: '80%', marginTop: 20}}
       />
+
       <TouchableOpacity
         style={{
-          width: 50,
-          height: 50,
-          borderWidth: 1,
-          borderColor: 'red',
-          borderRadius: 25,
+          width: 40,
+          height: 40,
           position: 'absolute',
-          top: 20,
-          left: 20,
+          top: 40,
+          left: 40,
           justifyContent: 'center',
           alignItems: 'center',
         }}
         onPress={handleCameraMode}>
-        <Text style={{color: 'white', fontSize: 15, fontWeight: '600'}}>R</Text>
+        <Image
+          source={require('../../images/flip.png')}
+          style={{width: '100%', height: '100%', tintColor: 'white'}}
+        />
       </TouchableOpacity>
       <View
         style={{
           flexDirection: 'row',
           width: '100%',
-          borderWidth: 1,
-          borderColor: 'red',
           height: 100,
           position: 'absolute',
           bottom: 50,
           justifyContent: 'space-between',
           alignItems: 'center',
-          paddingLeft: 10,
-          paddingRight: 10,
+          paddingLeft: 50,
+          paddingRight: 50,
         }}>
         {capturedImage !== null ? (
           <TouchableOpacity
@@ -170,7 +175,7 @@ const VisionCamera = () => {
               width: 50,
               height: 50,
               borderWidth: 1,
-              borderColor: 'red',
+              borderColor: 'white',
             }}></TouchableOpacity>
         )}
 
@@ -178,20 +183,26 @@ const VisionCamera = () => {
           style={{
             width: 60,
             height: 60,
-            borderRadius: 30,
-            backgroundColor: 'red',
           }}
           onPress={() => {
             takePicture();
-          }}></TouchableOpacity>
+          }}>
+          <Image
+            source={require('../../images/capture.png')}
+            style={{height: '100%', width: '100%', tintColor: 'white'}}
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           style={{
             width: 40,
             height: 40,
-            borderRadius: 20,
-            backgroundColor: 'yellow',
           }}
-          onPress={toggleFlash}></TouchableOpacity>
+          onPress={toggleFlash}>
+          <Image
+            source={require('../../images/flash.png')}
+            style={{height: '100%', width: '100%', tintColor: 'white'}}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );

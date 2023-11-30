@@ -1,5 +1,5 @@
 import {View, Text} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import TodoList from './components/TodoList';
@@ -12,6 +12,7 @@ import Show from './screens/Show';
 import GalleryVideo from './screens/GalleryVideo';
 import CaptureImage from './screens/CaptureImage';
 import VisionCamera from './screens/VisionCamera';
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -50,7 +51,7 @@ const AppNavigator = () => {
       <Drawer.Screen name="Picker" component={ImageGallery} />
       <Drawer.Screen name="Gallery" component={Show} />
       <Drawer.Screen name="GalleryVideo" component={GalleryVideo} />
-      <Drawer.Screen name="CaptureImage" component={CaptureImage} />
+      {/* <Drawer.Screen name="CaptureImage" component={CaptureImage} /> */}
       <Drawer.Screen name="VisionCamera" component={VisionCamera} />
     </Drawer.Navigator>
   );
