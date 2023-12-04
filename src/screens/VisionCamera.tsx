@@ -7,9 +7,12 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  Animated,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import {openDatabase} from 'react-native-sqlite-storage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const db = openDatabase({name: 'todolist.db'});
 
@@ -18,9 +21,12 @@ const VisionCamera = () => {
   const cameraRef = useRef();
   const back = useCameraDevice('back');
   const front = useCameraDevice('front');
-  const [flashMode, setFlashMode] = useState('off');
+  const [flashMode, setFlashMode] = useState('auto');
   const [cameraMode, setcameraMode] = useState(back);
   const [visible, setvisible] = useState(false);
+
+  const [isRecording, setisRecording] = useState(false);
+  const [timer, settimer] = useState(0);
 
   const handleCameraMode = () => {
     if (cameraMode == back) {
@@ -31,10 +37,12 @@ const VisionCamera = () => {
   };
 
   const toggleFlash = () => {
-    if (flashMode == 'off') {
+    if (flashMode == 'auto') {
       setFlashMode('on');
     } else if (flashMode == 'on') {
       setFlashMode('off');
+    } else if (flashMode == 'off') {
+      setFlashMode('auto');
     }
   };
 
@@ -54,24 +62,83 @@ const VisionCamera = () => {
   };
 
   const checkPermission = async () => {
-    // try {
-    //   const cameraPermission=await PermissionsAndroid.request()
-
-    // } catch (error) {
-
-    // }
     const cameraPermission = await Camera.requestCameraPermission();
-    const microphonePermission = await Camera.getMicrophonePermissionStatus();
+    const microphonePermission = await Camera.requestMicrophonePermission();
     console.log(cameraPermission);
+    console.log(microphonePermission);
+  };
+
+  const outerCircleSize = useRef(new Animated.Value(80)).current;
+  const innerCircleColor = useRef(new Animated.Value(0)).current;
+
+  const handleButtonPressIn = () => {
+    Animated.parallel([
+      Animated.timing(outerCircleSize, {
+        toValue: 100,
+        duration: 150,
+        useNativeDriver: false,
+      }),
+      Animated.timing(innerCircleColor, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
+
+  const handleButtonPressOut = () => {
+    Animated.parallel([
+      Animated.timing(outerCircleSize, {
+        toValue: 80,
+        duration: 150,
+        useNativeDriver: false,
+      }),
+      Animated.timing(innerCircleColor, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: false,
+      }),
+    ]).start();
   };
 
   const takePicture = async () => {
     const photo = await cameraRef.current.takePhoto({
-      flashMode: 'auto',
+      flash: `${flashMode}`,
+      enableShutterSound: false,
     });
-    addImageToDb(photo.path, 'image');
-    console.log('this is photo details', photo.path);
+    // addImageToDb(photo.path, 'image');
+    console.log('this is photo details', photo);
     setCapturedImage(photo.path);
+  };
+
+  const captureVideo = () => {
+    setisRecording(true);
+    const intervalId = setInterval(() => {
+      settimer(timer => timer + 1);
+    }, 1000);
+    cameraRef.current.startRecording({
+      onRecordingFinished: video => {
+        clearInterval(intervalId);
+        setisRecording(false);
+        settimer(0);
+        console.log(video);
+      },
+      onRecordingError: error => {
+        clearInterval(intervalId);
+        setisRecording(false);
+        settimer(0);
+        console.log(error);
+      },
+    });
+
+    handleButtonPressIn();
+  };
+
+  const stopRecordingVideo = async () => {
+    if (isRecording) {
+      await cameraRef.current.stopRecording();
+      handleButtonPressOut();
+    }
   };
 
   const FullSizeImage = () => {
@@ -118,15 +185,16 @@ const VisionCamera = () => {
   return (
     <View style={{flex: 1, backgroundColor: 'black'}}>
       <FullSizeImage />
+      {isRecording && <Text style={{color: 'red'}}>{timer}</Text>}
 
       <Camera
         ref={cameraRef}
         device={cameraMode}
         isActive={true}
         photo={true}
-        torch={flashMode}
-        flash={'auto'}
-        style={{width: '100%', height: '80%', marginTop: 20}}
+        video={true}
+        audio={true}
+        style={{width: '100%', height: '75%', marginTop: 20}}
       />
 
       <TouchableOpacity
@@ -179,29 +247,61 @@ const VisionCamera = () => {
             }}></TouchableOpacity>
         )}
 
-        <TouchableOpacity
-          style={{
-            width: 60,
-            height: 60,
+        <TouchableWithoutFeedback
+          onLongPress={() => {
+            captureVideo();
+          }}
+          onPressOut={() => {
+            stopRecordingVideo();
           }}
           onPress={() => {
             takePicture();
           }}>
-          <Image
-            source={require('../../images/capture.png')}
-            style={{height: '100%', width: '100%', tintColor: 'white'}}
-          />
-        </TouchableOpacity>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 150,
+              width: 150,
+            }}>
+            <Animated.View
+              style={{
+                height: outerCircleSize,
+                width: outerCircleSize,
+                borderWidth: 1,
+                borderColor: 'white',
+                borderRadius: 50,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Animated.View
+                style={{
+                  height: 60,
+                  width: 60,
+                  borderWidth: 1,
+                  borderColor: 'white',
+                  borderRadius: 30,
+                  backgroundColor: innerCircleColor.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['white', 'red'],
+                  }),
+                }}></Animated.View>
+            </Animated.View>
+          </View>
+        </TouchableWithoutFeedback>
         <TouchableOpacity
           style={{
             width: 40,
             height: 40,
           }}
           onPress={toggleFlash}>
-          <Image
-            source={require('../../images/flash.png')}
-            style={{height: '100%', width: '100%', tintColor: 'white'}}
-          />
+          {flashMode == 'auto' ? (
+            <Icon name="flash-auto" size={30} color={'white'} />
+          ) : flashMode == 'on' ? (
+            <Icon name="flash" size={30} color={'white'} />
+          ) : (
+            <Icon name="flash-off" size={30} color={'white'} />
+          )}
         </TouchableOpacity>
       </View>
     </View>

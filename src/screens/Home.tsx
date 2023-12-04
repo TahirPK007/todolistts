@@ -118,6 +118,25 @@ const Home = () => {
 
   const files = useGetshare();
 
+  // if (files) {
+  //   files.map(item => {
+  //     db.transaction(txn => {
+  //       txn.executeSql(
+  //         'insert into media (path,type) VALUES (?,?)',
+  //         ['file://' + item.filePath, 'image'],
+  //         (sqltxn, res) => {
+  //           console.log('Inserted successfully');
+  //           // ReceiveSharingIntent.clearReceivedFiles();
+  //           // console.log('intents cleared success');
+  //         },
+  //         error => {
+  //           console.log('Error occurred while inserting:', error);
+  //         },
+  //       );
+  //     });
+  //   });
+  // }
+
   if (files) {
     files.map(item => {
       db.transaction(txn => {
