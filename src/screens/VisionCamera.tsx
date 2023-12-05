@@ -52,10 +52,28 @@ const VisionCamera = () => {
         'insert into media (path,type) VALUES (?,?)',
         ['file://' + path, type],
         (sqltxn, res) => {
-          console.log('Inserted successfully');
+          console.log('image inserted successfully');
         },
         error => {
-          console.log('Error occurred while inserting:', error);
+          console.log(
+            'Error occurred while adding image into database:',
+            error,
+          );
+        },
+      );
+    });
+  };
+
+  const addVideoToDb = (path, type) => {
+    db.transaction(txn => {
+      txn.executeSql(
+        `insert into media (path,type) VALUES (?,?)`,
+        ['file://' + path, type],
+        (sqltxn, res) => {
+          console.log('video inserted successfully');
+        },
+        error => {
+          console.log('error occured while adding video into database');
         },
       );
     });
@@ -106,7 +124,7 @@ const VisionCamera = () => {
       flash: `${flashMode}`,
       enableShutterSound: false,
     });
-    // addImageToDb(photo.path, 'image');
+    addImageToDb(photo.path, 'image');
     console.log('this is photo details', photo);
     setCapturedImage(photo.path);
   };
@@ -122,6 +140,7 @@ const VisionCamera = () => {
         setisRecording(false);
         settimer(0);
         console.log(video);
+        addVideoToDb(video.path, 'video');
       },
       onRecordingError: error => {
         clearInterval(intervalId);
@@ -185,7 +204,30 @@ const VisionCamera = () => {
   return (
     <View style={{flex: 1, backgroundColor: 'black'}}>
       <FullSizeImage />
-      {isRecording && <Text style={{color: 'red'}}>{timer}</Text>}
+      {isRecording && (
+        <Text
+          style={{
+            color: 'red',
+            position: 'absolute',
+            bottom: 180,
+            left: 210,
+            zIndex: 1,
+          }}>
+          {timer}
+        </Text>
+      )}
+      {isRecording && (
+        <Text
+          style={{
+            color: 'red',
+            zIndex: 2,
+            position: 'absolute',
+            right: 20,
+            top: 50,
+          }}>
+          Recording...
+        </Text>
+      )}
 
       <Camera
         ref={cameraRef}
